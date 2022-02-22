@@ -21,7 +21,15 @@ class BlogsController extends Controller
     protected $limit = 20;
     protected $list_field = ['id', 'name', 'status', 'image', 'created_at'];
 
-    public function index($page = 1, Request $request)
+    public function index($page = 1, $rubric_id = null)
+    {
+        return view('admin.blogs.list', [
+            'page' => $page,
+            'rubric_id' => $rubric_id
+        ]);
+    }
+
+    public function getBlogsList($page = 1, Request $request)
     {
         $keyword = $request->input('s');
         $blogs = [];
@@ -43,10 +51,16 @@ class BlogsController extends Controller
 
     }
 
+    public function create()
+    {
+        $blogs = new Blogs();
+        return view('admin.blogs.add', compact('blogs'));
+    }
+
     public function store(Request $request)
     {
         try {
-            $data = $request->all();
+            $data = (array)json_decode($request->list);
             $validate = Blogs::validator($data);
             if ($validate->fails()) {
                 return response()->json(['message' => $validate->errors(), 'success' => false], 422);
@@ -63,7 +77,7 @@ class BlogsController extends Controller
 
                 Storage::makeDirectory($path, 0777, true);
                 Storage::disk('local')->put($path . $name, file_get_contents($file->getRealPath()));
-                $full_path = public_path() . '/userdata' . $path.$name;
+                $full_path = public_path() . '/uploads' . $path.$name;
                 exec("cwebp -q 70 {$full_path} -o {$full_path}.webp");
             }
 
@@ -74,17 +88,27 @@ class BlogsController extends Controller
 
     }
 
-    public function getBlogsSingle($id)
+    public function getBlogSingle($id)
     {
         $blogs = Blogs::find($id);
 
         return response()->json($blogs);
     }
 
+    public function show($id)
+    {
+        return view('admin.blogs.single', ['id' => $id]);
+    }
+
+    public function edit($id)
+    {
+        return view('admin.blogs.edit', ['id' => $id]);
+    }
+
     public function update($id, Request $request)
     {
         try {
-            $data = $request->all();
+            $data = (array)json_decode($request->list);
             $blogs = Blogs::find($id);
 
             if ($request->file('image')) {
@@ -97,7 +121,7 @@ class BlogsController extends Controller
                 Storage::deleteDirectory($path);
                 Storage::makeDirectory($path, 0777, true);
                 Storage::disk('local')->put($path . $name, file_get_contents($file->getRealPath()));
-                $full_path = public_path() . '/userdata' . $path.$name;
+                $full_path = public_path() . '/uploads' . $path.$name;
                 exec("cwebp -q 70 {$full_path} -o {$full_path}.webp");
             }
 

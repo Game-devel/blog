@@ -20,7 +20,19 @@ class RubricsController extends Controller
     protected $limit = 20;
     protected $list_field = ['id', 'name'];
 
-    public function index($page = 1, Request $request)
+    public function getAll() {
+        $rubrics = Rubric::all();
+
+        return response()->json($rubrics);
+    }
+
+    public function index($page = 1)
+    {
+        $page--;
+        return view('admin.rubric.list', ['page' => ++$page]);
+    }
+
+    public function getList($page = 1, Request $request)
     {
         $keyword = $request->input('s');
         $rubrics = [];
@@ -42,10 +54,16 @@ class RubricsController extends Controller
 
     }
 
+    public function create()
+    {
+        $blogs = new Rubric();
+        return view('admin.rubric.create', compact('blogs'));
+    }
+
     public function store(Request $request)
     {
         try {
-            $data = $request->all();
+            $data = (array)json_decode($request->list);
 
             $validate = Rubric::validator($data);
             if ($validate->fails()) {
@@ -59,17 +77,22 @@ class RubricsController extends Controller
         }
     }
 
-    public function getRubricsSingle($id)
+    public function getRubricSingle($id)
     {
         $rubrics = Rubric::find($id);
 
         return response()->json($rubrics);
     }
 
+    public function edit($id)
+    {
+        return view('admin.rubric.edit', ['id' => $id]);
+    }
+
     public function update($id, Request $request)
     {
         try {
-            $data = $request->all();
+            $data = (array)json_decode($request->list);
             $rubrics = Rubric::find($id);
 
             $rubrics->update($data);

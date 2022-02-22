@@ -19,7 +19,7 @@ class Blogs extends Model
         return Validator::make($data, [
 			'name' => 'required|string|max:200',
             'text' => 'nullable',
-            'image' => 'nullable|string|max:200',
+            'image' => 'nullable',
             'rubric_id' => 'required|integer|exists:rubrics,id',
         ]);
     }
