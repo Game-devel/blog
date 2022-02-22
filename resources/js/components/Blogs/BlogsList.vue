@@ -25,10 +25,10 @@
                 <div class="uk-margin uk-margin-small-top">
                     <label for="status" class="uk-form-label">Рубрика:</label>
                     <div class="uk-form-controls">
-                        <select class="uk-select uk-width-1-2@m" id="rubric" v-model="rubric_id" @change="setRubric()">
+                        <select class="uk-select uk-width-1-2@m" id="rubric" v-model="rubric_id_local" @change="setRubric()">
                             <option :value="''">Выберите рубрику</option>
                             <option :value="0">Выберите рубрику</option>
-                            <option :value="item.id" v-for="item in rubric_list" v-if="item.ctype == 'blogs'" v-bind:key="item.id">{{item.name}}
+                            <option :value="item.id" v-for="item in rubric_list" v-bind:key="item.id">{{item.name}}
                             </option>
                         </select>
                     </div>
@@ -79,6 +79,7 @@
         data() {
             return {
                 current_page_local: this.current_page,
+                rubric_id_local: this.rubric_id,
                 queue_count: 0,
                 build_queue_count: 0,
                 load: false,
@@ -120,16 +121,14 @@
                 this.getList();
             },
             getList: function () {
-
                 let path = '';
-                if (this.rubric_id) {
-                    path = '/admin/blogs/get/' + this.current_page_local + '/' + this.rubric_id + (this.keyword ? '/?s='+this.keyword:'');
+                if (this.rubric_id_local) {
+                    path = '/admin/blogs/get/' + this.current_page_local + '/' + this.rubric_id_local + (this.keyword ? '/?s='+this.keyword:'');
                 } else {
                     path = '/admin/blogs/get/' + this.current_page_local + (this.keyword ? '/?s='+this.keyword:'');
                 }
 
-                this.$http.get(path).then(response => {                    
-                    console.log(response.data)
+                this.$http.get(path).then(response => {
                     this.load = true;
                     this.list = response.data.list;
                     this.page_list = response.data.page_list

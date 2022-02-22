@@ -40,6 +40,7 @@ Route::group([
     Route::get('blogs/{page?}/{rubric_id?}', 'BlogsController@index')->name('blogs.index');
 
     Route::get('rubrics/get/all', 'RubricsController@getAll');
+    Route::get('rubrics/get/search', 'RubricsController@getSearch');
     Route::get('rubrics/get/{page?}/{rubric_id?}', 'RubricsController@getList')->name('rubrics.list');
     Route::post('rubrics/save', 'RubricsController@store')->name('rubric.store');
     Route::post('rubrics/save/{id}', 'RubricsController@update');

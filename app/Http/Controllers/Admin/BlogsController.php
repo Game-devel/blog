@@ -19,7 +19,6 @@ class BlogsController extends Controller
     }
 
     protected $limit = 20;
-    protected $list_field = ['id', 'name', 'status', 'image', 'created_at'];
 
     public function index($page = 1, $rubric_id = null)
     {
@@ -29,7 +28,7 @@ class BlogsController extends Controller
         ]);
     }
 
-    public function getBlogsList($page = 1, Request $request)
+    public function getBlogsList($page = 1, $rubric_id = null, Request $request)
     {
         $keyword = $request->input('s');
         $blogs = [];
@@ -37,7 +36,7 @@ class BlogsController extends Controller
 
         $page--;
         $offset = $page * $this->limit;
-        list($blogs, $page_list) = $this->getBlogsAll($offset, $page, $keyword);
+        list($blogs, $page_list) = $this->getBlogsAll($offset, $page, $rubric_id, $keyword);
 
         if (count($page_list) == 0) {
             $page_list = [1];
@@ -145,11 +144,13 @@ class BlogsController extends Controller
 
     }
 
-    public function getBlogsAll($offset = 0, $page = 0, $keyword = null)
+    public function getBlogsAll($offset = 0, $page = 0, $rubric_id = null, $keyword = null)
     {
         $page_list = [];
         $pages = ceil(
-                Blogs::when($keyword, function ($query) use ($keyword) {
+                Blogs::when($rubric_id, function ($query) use ($rubric_id) {
+                    return $query->where('rubric_id', $rubric_id);
+                })->when($keyword, function ($query) use ($keyword) {
                     return $query->where('name', 'like', '%'.$keyword.'%');
                 })->count() / $this->limit);
 
@@ -157,7 +158,9 @@ class BlogsController extends Controller
             $page_list[] = $i;
         }
 
-        $blogs = Blogs::select($this->list_field)->when($keyword, function ($query) use ($keyword) {
+        $blogs = Blogs::when($rubric_id, function ($query) use ($rubric_id) {
+            return $query->where('rubric_id', $rubric_id);
+        })->when($keyword, function ($query) use ($keyword) {
             return $query->where('name', 'like', '%'.$keyword.'%');
         })->limit($this->limit)->offset($offset)->orderBy('id', 'desc')->get();
 

@@ -62,10 +62,10 @@
             },
 			getSearch: function () {
                 if (this.keyword.length > 2) {
-                    let path = '/admin/rubrics/get/search/?s=' + this.keyword;
+                    let path = '/admin/rubrics/get/' + this.current_page + '/?s=' + this.keyword;
                     this.$http.get(path).then(response => {
 						this.list = response.data.list;
-						this.page_list = 0;
+						this.page_list = response.data.page_list;
 						this.load = true;
                     });
                 }
